@@ -13,7 +13,6 @@ st.title('Programação Hacktown')
 
 days = {0:'Quinta',1:'Sexta',2:'Sábado',3:'Domingo'}
 
-
 @st.cache(allow_output_mutation=True)
 def hacktown(link: str) -> pd.DataFrame:
   """
