@@ -65,7 +65,7 @@ pandocfilters=1.5.0=pyhd3eb1b0_0
 parso=0.8.3=pyhd3eb1b0_0
 pickleshare=0.7.5=pyhd3eb1b0_1003
 pillow=9.2.0=pypi_0
-pip=22.2.1=pypi_0
+pip=22.2.2=pypi_0
 plotly=5.10.0=pypi_0
 prometheus_client=0.14.1=py39haa95532_0
 prompt-toolkit=3.0.30=pypi_0
