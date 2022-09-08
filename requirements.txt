@@ -125,6 +125,5 @@ webencodings=0.5.1=pypi_0
 wheel=0.37.1=pyhd3eb1b0_0
 widgetsnbextension=3.6.1=pypi_0
 wincertstore=0.2=py39haa95532_2
-winpty=0.4.3=4
 zeromq=4.3.4=hd77b12b_0
 zipp=3.8.1=pypi_0
