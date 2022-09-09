@@ -81,9 +81,10 @@ with st.sidebar:
     theme = st.text_input("Palavra-chave", help="Busca por evento, descrição, local ou tipo.\
         \nPara limpar o filtro de palavra chave, pressione Enter com o campo de busca vazio.")
 
+    # Contato
     for i in range (0,7):
         st.write("\n")
-    st.markdown("**Desenvolvido por Matheus Mafra**")
+    st.markdown("### Desenvolvido por Matheus Mafra")
 
     l_logo,g_logo = st.columns(2)
     l_logo.image("https://cdn-icons-png.flaticon.com/512/174/174857.png",width=50)
@@ -131,11 +132,11 @@ with st.container():
         df,
         gridOptions=gridOptions,
         data_return_mode='AS_INPUT',
-        #update_mode=GridUpdateMode.SELECTION_CHANGED,
-        update_mode='MODEL_CHANGED', 
+        update_mode=GridUpdateMode.SELECTION_CHANGED,
+        #update_mode='MODEL_CHANGED', 
         fit_columns_on_grid_load=True,
         enable_enterprise_modules=True,
-        reload_data=True,
+        reload_data=False,
         width='100%'
         #height=700, 
         #theme='ALPINE', #Add theme color to the table
@@ -151,6 +152,4 @@ with st.container():
     try:
         st.table(df_selected[['Evento', 'Descrição', 'Local', 'Dia', 'Início', 'Fim']])
     except KeyError:
-        "Selecione um evento para ampliar"
-
-    
+        "Selecione um evento para ampliar"  
