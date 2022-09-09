@@ -76,7 +76,8 @@ with st.sidebar:
         time = st.selectbox("Horário", times)
 
     # Filtro de tema
-    theme = st.text_input("Palavra-chave", help="Para limpar o filtro de palavra chave, pressione Enter com o campo de busca vazio.")
+    theme = st.text_input("Palavra-chave", help="Busca por evento, descrição, local ou tipo.\
+                                                 Para limpar o filtro de palavra chave, pressione Enter com o campo de busca vazio.")
 
 ### Componentes da página principal 
 with st.container():
