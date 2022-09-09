@@ -79,6 +79,12 @@ with st.sidebar:
     theme = st.text_input("Palavra-chave", help="Busca por evento, descrição, local ou tipo.\
                                                  Para limpar o filtro de palavra chave, pressione Enter com o campo de busca vazio.")
 
+    st.empty()
+    st.empty()
+    st.write("Desenvolvido por Matheus Mafra")
+    st.write("https://github.com/matheusmafraoandrade")
+    st.write("https://www.linkedin.com/in/matheus-andrade-122b34180/")
+
 ### Componentes da página principal 
 with st.container():
     # Aplicar filtro de tema
