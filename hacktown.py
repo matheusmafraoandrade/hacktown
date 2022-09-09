@@ -83,7 +83,7 @@ with st.sidebar:
     st.empty()
     st.empty()
     st.write("Desenvolvido por Matheus Mafra")
-    st.write("https://github.com/matheusmafraoandrade")
+    st.markdown("[![](https://commons.wikimedia.org/wiki/File:LinkedIn_icon.svg)](https://www.linkedin.com/in/matheus-andrade-122b34180/)")
     st.write("https://www.linkedin.com/in/matheus-andrade-122b34180/")
 
 ### Componentes da página principal 
