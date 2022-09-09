@@ -76,12 +76,11 @@ with st.sidebar:
         time = st.selectbox("Horário", times)
 
     # Filtro de tema
-    theme = st.text_input("Palavra-chave", help="Busca por evento, descrição, local ou tipo.\
-                                                 Para limpar o filtro de palavra chave, pressione Enter com o campo de busca vazio.")
+    theme = st.text_input("Palavra-chave", help="Busca por evento, descrição, local ou tipo.\nPara limpar o filtro de palavra chave, pressione Enter com o campo de busca vazio.")
 
-    st.empty()
-    st.empty()
-    st.empty()
+    st.write("\n")
+    st.write("\n")
+    st.write("\n")
     st.write("Desenvolvido por Matheus Mafra")
     linkedin, github = st.columns(2)
     linkedin.markdown("[Linkedin](https://www.linkedin.com/in/matheus-andrade-122b34180/)")
