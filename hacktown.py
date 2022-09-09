@@ -58,7 +58,7 @@ df['Início'] = df['Início'].str.replace('^8h','08h', regex=True).replace('^9h'
 ### Componentes da barra lateral: filtro de data, horário e palavra-chave
 with st.sidebar:
     # Logo Hacktown
-    st.image('hacktown_logo.png')
+    st.image("https://eduardoschenberg.com/icone/hack-town/hacktown-logo/")
 
     # Lista de dias do evento + opção "todos"
     dates = list(days.values())
@@ -79,7 +79,7 @@ with st.sidebar:
     theme = st.text_input("Palavra-chave", help="Busca por evento, descrição, local ou tipo.\
         \nPara limpar o filtro de palavra chave, pressione Enter com o campo de busca vazio.")
 
-    for i in range (0,10):
+    for i in range (0,12):
         st.write("\n")
     st.write("Desenvolvido por Matheus Mafra")
     linkedin, github = st.columns(2)
