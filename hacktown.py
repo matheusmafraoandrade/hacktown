@@ -57,6 +57,9 @@ df['Início'] = df['Início'].str.replace('^8h','08h', regex=True).replace('^9h'
 
 ### Componentes da barra lateral: filtro de data, horário e palavra-chave
 with st.sidebar:
+    # Logo Hacktown
+    st.image('hacktown_logo.png')
+
     # Lista de dias do evento + opção "todos"
     dates = list(days.values())
     dates.append('Todos')
