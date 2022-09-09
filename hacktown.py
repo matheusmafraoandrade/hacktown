@@ -58,7 +58,8 @@ df['Início'] = df['Início'].str.replace('^8h','08h', regex=True).replace('^9h'
 ### Componentes da barra lateral: filtro de data, horário e palavra-chave
 with st.sidebar:
     # Logo Hacktown
-    st.image('hacktown_logo2.png', width=80)
+    st.image('https://hacktown.com.br/wp-content/uploads/elementor/thumbs/LOGO-HTW22-pflc15fialujhvsk6ptrdxdngopibx60z8o2o775s0.png',
+        width=130)
 
     # Lista de dias do evento + opção "todos"
     dates = list(days.values())
@@ -79,12 +80,16 @@ with st.sidebar:
     theme = st.text_input("Palavra-chave", help="Busca por evento, descrição, local ou tipo.\
         \nPara limpar o filtro de palavra chave, pressione Enter com o campo de busca vazio.")
 
-    for i in range (0,12):
+    for i in range (0,7):
         st.write("\n")
-    st.write("Desenvolvido por Matheus Mafra")
-    linkedin, github = st.columns(2)
-    linkedin.markdown("[Linkedin](https://www.linkedin.com/in/matheus-andrade-122b34180/)")
-    github.markdown("[GitHub](https://github.com/matheusmafraoandrade)")
+    st.markdown("**Desenvolvido por Matheus Mafra**")
+
+    l_logo,g_logo = st.columns(2)
+    l_logo.image("https://cdn-icons-png.flaticon.com/512/174/174857.png",width=50)
+    l_logo.markdown("**[Linkedin](https://www.linkedin.com/in/matheus-andrade-122b34180/)**")
+    
+    g_logo.image("https://cdn-icons-png.flaticon.com/512/25/25231.png",width=50)
+    g_logo.markdown("**[GitHub](https://github.com/matheusmafraoandrade)**")
 
 ### Componentes da página principal 
 with st.container():
