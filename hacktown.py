@@ -83,7 +83,7 @@ with st.sidebar:
     st.empty()
     st.empty()
     st.write("Desenvolvido por Matheus Mafra")
-    st.markdown("[![Linkedin]](https://www.linkedin.com/in/matheus-andrade-122b34180/)")
+    st.markdown("[Linkedin](https://www.linkedin.com/in/matheus-andrade-122b34180/)")
     st.write("https://www.linkedin.com/in/matheus-andrade-122b34180/")
 
 ### Componentes da página principal 
