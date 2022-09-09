@@ -120,7 +120,7 @@ with st.container():
 
     # Configurações tabela Ag Grid
     gb = GridOptionsBuilder.from_dataframe(df)
-    gb.configure_column('Evento', min_column_width=9)
+    gb.configure_column('Evento', min_column_width=8)
     gb.configure_pagination(enabled=True, paginationAutoPageSize=False, paginationPageSize=10) #Add pagination
     gb.configure_side_bar() #Add a sidebar
     gb.configure_selection(ms, use_checkbox=True, groupSelectsChildren="Group checkbox select children") #Enable multi-row selection
