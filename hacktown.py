@@ -12,8 +12,16 @@ from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
 st.set_page_config(page_title='Programação Hacktown', layout='wide')
 st.title('Programação Hacktown')
 
+### Dicionário de dias para indexar busca por abas da planilha
 days = {0:'Quinta',1:'Sexta',2:'Sábado',3:'Domingo'}
 
+### Criar tipo "Dias da Semana"
+days_order = pd.CategoricalDtype(
+    ['Quinta','Sexta','Sábado','Domingo'], 
+    ordered=True
+)
+
+### Função Webscraping
 @st.cache(allow_output_mutation=True)
 def hacktown(link: str) -> pd.DataFrame:
   """
@@ -47,7 +55,7 @@ df = pd.DataFrame(hacktown(
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vTUAuTwwFq_debnSmBPcUMg3B_9kx76J_BygLDCYkGb9BNG8AvIx27wouDrg6pL3r8Vo_oBFYx7eNp4/pubhtml?gid=0")
     )
 
-# Manipular os horários de início e fim
+### Manipular os horários de início e fim
 df['Início'] = df['Horario'].str.split(' ').str[0]
 df['Fim'] = df['Horario'].str.split(' ').str[-1]
 conditions = [(df['Início'] == df['Fim']), (df['Início'] != df['Fim'])]
@@ -55,6 +63,7 @@ choices = ["", df['Fim']]
 df['Fim'] = np.select(conditions, choices, default="")
 df.drop(columns=['Horario'], axis=1, inplace=True)
 df['Início'] = df['Início'].str.replace('^8h','08h', regex=True).replace('^9h','09h', regex=True).replace('','16h')
+df['Dia'] = df['Dia'].astype(days_order)
 
 ### Componentes da barra lateral: filtro de data, horário e palavra-chave
 with st.sidebar:
@@ -93,7 +102,7 @@ with st.sidebar:
     g_logo.image("https://cdn-icons-png.flaticon.com/512/25/25231.png",width=50)
     g_logo.markdown("**[GitHub](https://github.com/matheusmafraoandrade)**")
 
-### Componentes da página principal
+### Componentes da página principal: multiselect, aba 1 e aba 2
 
 # Habilitar seleção múltipla
 mult_select = st.checkbox("Habilitar Seleção Múltipla", 
@@ -103,6 +112,7 @@ if mult_select:
 else:
     ms = 'single'
 
+# Dividir em abas
 tab1, tab2 = st.tabs(["Programação completa", "Minha programação"])
 with tab1:
     # Aplicar filtro de tema
@@ -121,14 +131,6 @@ with tab1:
         df = df[(df['Dia']==date)].reset_index(drop=True)
     else:
         df = df[(df['Dia']==date) & (df['Início']==time)].reset_index(drop=True)
-
-    # # Habilitar seleção múltipla
-    # mult_select = st.checkbox("Habilitar Seleção Múltipla", 
-    #                           help="Clique para habilitar seleção de múltiplos eventos ao mesmo tempo.")
-    # if mult_select:
-    #     ms = 'multiple'
-    # else:
-    #     ms = 'single'
 
     # Configurações tabela Ag Grid
     gb = GridOptionsBuilder.from_dataframe(df)
@@ -174,10 +176,15 @@ with tab2:
     # Minha Programação
     st.header("Minha Programação")
     st.write('Clique com o botão direito em qualquer evento e, em seguida, clique em "Export" para baixar sua programação em csv ou Excel.')
-    # Initialization
+    
+    # Inicializar minha prrogramação
     if 'minha_prog' not in st.session_state:
         st.session_state.minha_prog = pd.DataFrame(columns = df.columns)
 
+    # Colocar os dias da semana na ordem
+    (st.session_state.minha_prog)['Dia'] = (st.session_state.minha_prog)['Dia'].astype(days_order)
+
+    # Adicionar e remover eventos
     if adicionar:
         st.session_state.minha_prog = pd.concat([st.session_state.minha_prog, df_selected])
 
@@ -198,11 +205,12 @@ with tab2:
 
     # Construção tabela Ag Grid
     grid_response_minha_prog = AgGrid(
-        st.session_state.minha_prog,
+        (st.session_state.minha_prog)[
+            ['Evento', 'Descrição', 'Local', 'Tipo', 'Dia', 'Início', 'Fim'] # Remover coluna dict que impede remover duplicatas
+            ].drop_duplicates().sort_values(by=['Dia', 'Início']), # Remover duplicatas e ordenar por dia e horário
         gridOptions=gridOptions,
         data_return_mode='AS_INPUT',
         update_mode=GridUpdateMode.MODEL_CHANGED,
-        #update_mode='VALUE_CHANGED',
         fit_columns_on_grid_load=True,
         enable_enterprise_modules=True,
         reload_data=False,
