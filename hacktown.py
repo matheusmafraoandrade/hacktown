@@ -180,7 +180,6 @@ with tab2:
 
     if adicionar:
         st.session_state.minha_prog = pd.concat([st.session_state.minha_prog, df_selected])
-        st.session_state.minha_prog.drop_duplicates(inplace=True)
 
     if remover:
         try:
