@@ -93,8 +93,18 @@ with st.sidebar:
     g_logo.image("https://cdn-icons-png.flaticon.com/512/25/25231.png",width=50)
     g_logo.markdown("**[GitHub](https://github.com/matheusmafraoandrade)**")
 
-### Componentes da página principal 
-with st.container():
+### Componentes da página principal
+
+# Habilitar seleção múltipla
+mult_select = st.checkbox("Habilitar Seleção Múltipla", 
+                            help="Clique para habilitar seleção de múltiplos eventos ao mesmo tempo.")
+if mult_select:
+    ms = 'multiple'
+else:
+    ms = 'single'
+
+tab1, tab2 = st.tabs(["Programação completa", "Minha programação"])
+with tab1:
     # Aplicar filtro de tema
     if theme != "":
         df = df[(df['Evento'].str.contains(theme, case=False)) |
@@ -112,16 +122,17 @@ with st.container():
     else:
         df = df[(df['Dia']==date) & (df['Início']==time)].reset_index(drop=True)
 
-    # Habilitar seleção múltipla
-    mult_select = st.checkbox("Habilitar Seleção Múltipla", help="Clique para habilitar seleção de múltiplos eventos ao mesmo tempo.")
-    if mult_select:
-        ms = 'multiple'
-    else:
-        ms = 'single'
+    # # Habilitar seleção múltipla
+    # mult_select = st.checkbox("Habilitar Seleção Múltipla", 
+    #                           help="Clique para habilitar seleção de múltiplos eventos ao mesmo tempo.")
+    # if mult_select:
+    #     ms = 'multiple'
+    # else:
+    #     ms = 'single'
 
     # Configurações tabela Ag Grid
     gb = GridOptionsBuilder.from_dataframe(df)
-    gb.configure_column('Evento', min_column_width=8)
+    gb.configure_column('Evento', min_column_width=8, headerCheckboxSelection = True)
     gb.configure_pagination(enabled=True, paginationAutoPageSize=False, paginationPageSize=10) #Add pagination
     gb.configure_side_bar() #Add a sidebar
     gb.configure_selection(ms, use_checkbox=True, groupSelectsChildren="Group checkbox select children") #Enable multi-row selection
@@ -144,12 +155,78 @@ with st.container():
 
     # Filtro de linhas selecionadas
     data = grid_response['data']
-    selected = grid_response['selected_rows'] 
-    df_selected = pd.DataFrame(selected) #Pass the selected rows to a new dataframe df
+    selected = grid_response['selected_rows']
+    df_selected = pd.DataFrame(selected) #Pass the selected rows to a new dataframe
+
+    # Botões de adicionar e remover evento 
+    add, remove = st.columns(2)
+    adicionar = add.button("Adicionar evento(s) à minha programação")
+    remover = remove.button("Remover evento(s) da minha programação")
 
     # Construção tabela de detalhes do evento
     st.header("Detalhes do Evento")
     try:
         st.table(df_selected[['Evento', 'Descrição', 'Local', 'Dia', 'Início', 'Fim']])
     except KeyError:
-        "Selecione um evento para ampliar"  
+        "Selecione um evento para ampliar"
+
+with tab2:
+    # Minha Programação
+    st.header("Minha Programação")
+    st.write('Clique com o botão direito em qualquer evento e, em seguida, clique em "Export" para baixar sua programação em csv ou Excel.')
+    # Initialization
+    if 'minha_prog' not in st.session_state:
+        st.session_state.minha_prog = pd.DataFrame(columns = df.columns)
+
+    if adicionar:
+        st.session_state.minha_prog = pd.concat([st.session_state.minha_prog, df_selected])
+
+    if remover:
+        try:
+            for index,row in df_selected[['Evento']].iterrows():
+                st.session_state.minha_prog = st.session_state.minha_prog[st.session_state.minha_prog['Evento'] != row['Evento']]
+        except KeyError:
+            st.write("Nenhum evento selecionado")
+
+    # Configurações tabela Ag Grid
+        gb = GridOptionsBuilder.from_dataframe(st.session_state.minha_prog)
+        gb.configure_column('Evento', min_column_width=8, headerCheckboxSelection = True)
+        gb.configure_pagination(enabled=True, paginationAutoPageSize=False, paginationPageSize=10) #Add pagination
+        gb.configure_side_bar() #Add a sidebar
+        gb.configure_selection(ms, use_checkbox=True, groupSelectsChildren="Group checkbox select children") #Enable multi-row selection
+        gridOptions = gb.build()
+
+    # Construção tabela Ag Grid
+    grid_response_minha_prog = AgGrid(
+        st.session_state.minha_prog,
+        gridOptions=gridOptions,
+        data_return_mode='AS_INPUT',
+        update_mode=GridUpdateMode.SELECTION_CHANGED,
+        #update_mode='VALUE_CHANGED',
+        fit_columns_on_grid_load=True,
+        enable_enterprise_modules=True,
+        reload_data=False,
+        width='100%'
+    )
+
+    # Filtro de linhas selecionadas
+    data_minha_prog = grid_response_minha_prog['data']
+    selected_minha_prog = grid_response_minha_prog['selected_rows'] 
+    df_selected_minha_prog = pd.DataFrame(selected_minha_prog) #Pass the selected rows to a new dataframe
+
+    # Botões de adicionar e remover evento 
+    remove_selected = st.button("Remover evento(s) selecionado(s)", help="Após clicar, desselecione um evento para atualizar a tabela")
+
+    if remove_selected:
+        try:
+            for index,row in df_selected_minha_prog[['Evento']].iterrows():
+                st.session_state.minha_prog = st.session_state.minha_prog[st.session_state.minha_prog['Evento'] != row['Evento']]
+        except KeyError:
+            st.write("Nenhum evento selecionado")
+
+    # Construção tabela de detalhes do evento
+    st.header("Detalhes do Evento")
+    try:
+        st.table(df_selected_minha_prog[['Evento', 'Descrição', 'Local', 'Dia', 'Início', 'Fim']])
+    except KeyError:
+        "Selecione um evento para ampliar"
