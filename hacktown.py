@@ -203,7 +203,7 @@ with tab2:
         data_return_mode='AS_INPUT',
         update_mode=GridUpdateMode.SELECTION_CHANGED,
         #update_mode='VALUE_CHANGED',
-        fit_columns_on_grid_load=False,
+        fit_columns_on_grid_load=True,
         enable_enterprise_modules=True,
         reload_data=False,
         width='100%'
