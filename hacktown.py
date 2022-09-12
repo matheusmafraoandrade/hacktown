@@ -193,7 +193,7 @@ with tab2:
         gb.configure_column('Evento', min_column_width=8, headerCheckboxSelection = True)
         gb.configure_pagination(enabled=True, paginationAutoPageSize=False, paginationPageSize=10) #Add pagination
         gb.configure_side_bar() #Add a sidebar
-        gb.configure_selection(ms, use_checkbox=True, groupSelectsChildren="Group checkbox select children") #Enable multi-row selection
+        gb.configure_selection(ms, use_checkbox=True, groupSelectsChildren="Group checkbox select children", suppressRowDeselection=True) #Enable multi-row selection
         gridOptions = gb.build()
 
     # Construção tabela Ag Grid
@@ -201,7 +201,7 @@ with tab2:
         st.session_state.minha_prog,
         gridOptions=gridOptions,
         data_return_mode='AS_INPUT',
-        update_mode=GridUpdateMode.SELECTION_CHANGED,
+        update_mode=GridUpdateMode.MODEL_CHANGED,
         #update_mode='VALUE_CHANGED',
         fit_columns_on_grid_load=True,
         enable_enterprise_modules=True,
@@ -214,13 +214,16 @@ with tab2:
     selected_minha_prog = grid_response_minha_prog['selected_rows'] 
     df_selected_minha_prog = pd.DataFrame(selected_minha_prog) #Pass the selected rows to a new dataframe
 
-    # Botões de adicionar e remover evento 
-    remove_selected = st.button("Remover evento(s) selecionado(s)", help="Após clicar, desselecione um evento para atualizar a tabela")
+    # Botões de adicionar e remover evento
+    remove_selected, update, empty_col = st.columns(3)
+    remover_selecao = remove_selected.button("Remover evento(s) selecionado(s)")
+    atualizar = update.button("Atualizar Tabela", help="Clique para atualizar a tabela após remover eventos.")
 
-    if remove_selected:
+    if remover_selecao:
         try:
             for index,row in df_selected_minha_prog[['Evento']].iterrows():
                 st.session_state.minha_prog = st.session_state.minha_prog[st.session_state.minha_prog['Evento'] != row['Evento']]
+                df_selected_minha_prog = df_selected_minha_prog[df_selected_minha_prog['Evento'] != row['Evento']]
         except KeyError:
             st.write("Nenhum evento selecionado")
 
