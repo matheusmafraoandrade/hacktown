@@ -4,11 +4,13 @@
 import requests
 from bs4 import BeautifulSoup
 import lxml
+import xlsxwriter
 import pandas as pd
 import numpy as np
 import streamlit as st
 from pandas.api.types import CategoricalDtype
 from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
+from io import BytesIO
 
 st.set_page_config(page_title='Programação Hacktown', layout='wide')
 st.title('Programação Hacktown')
@@ -49,6 +51,8 @@ def hacktown(link: str) -> pd.DataFrame:
             row.append(dia)
             length = len(mydata)
             mydata.loc[length] = row
+
+    mydata.fillna("", inplace=True)
 
     return mydata
 
@@ -176,13 +180,25 @@ with tab1:
 with tab2:
     # Minha Programação
     st.header("Minha Programação")
-    st.write(
-        'Clique com o botão direito em qualquer evento e, em seguida, clique em "Export" para baixar sua programação em CSV ou Excel.')
-    
-    # Inicializar minha prrogramação
-    if 'minha_prog' not in st.session_state:
-        st.session_state.minha_prog = pd.DataFrame(columns = df.columns)  
 
+    # Inicializar minha programação
+    if 'minha_prog' not in st.session_state:
+        st.session_state.minha_prog = pd.DataFrame(columns = df.columns)
+
+    # Upload da planilha
+    with st.expander("Importar programação"):
+        with st.form("Importar", clear_on_submit=True):
+            uploaded_file = st.file_uploader('Se já tiver uma programação em Excel, clique em "Browse Files" ou arraste o arquivo para cá para continuar montando.')
+            submitted = st.form_submit_button("Importar")
+            if submitted and uploaded_file is not None:
+                minha_prog = pd.read_excel(uploaded_file)
+                st.session_state.minha_prog = pd.concat([st.session_state.minha_prog, minha_prog])
+                del minha_prog
+
+    # Instrução download
+    #st.write(
+    #    'Clique com o botão direito em qualquer evento e, em seguida, clique em "Export" para baixar sua programação em CSV ou Excel.')                
+                
     # Adicionar e remover eventos
     if adicionar:
         st.session_state.minha_prog = pd.concat([st.session_state.minha_prog, df_selected])
@@ -227,10 +243,10 @@ with tab2:
     selected_minha_prog = grid_response_minha_prog['selected_rows'] 
     df_selected_minha_prog = pd.DataFrame(selected_minha_prog) #Pass the selected rows to a new dataframe
 
-    # Botões de adicionar e remover evento
-    remove_selected, update, empty_col = st.columns(3)
+    # Botões de remover evento e atualizar (botão vazio)
+    remove_selected, update, download = st.columns(3)
     remover_selecao = remove_selected.button("Remover evento(s) selecionado(s)")
-    atualizar = update.button("Atualizar Tabela", help="Clique para atualizar a tabela após remover eventos.")
+    atualizar = update.button("Atualizar programação", help="Clique para atualizar a tabela após remover eventos.")
 
     if remover_selecao:
         try:
@@ -239,6 +255,21 @@ with tab2:
                 df_selected_minha_prog = df_selected_minha_prog[df_selected_minha_prog['Evento'] != row['Evento']]
         except KeyError:
             st.write("Nenhum evento selecionado")
+
+    # Botão de download da planilha
+    buffer = BytesIO()
+    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+        ((st.session_state.minha_prog)[
+            ['Evento', 'Descrição', 'Local', 'Tipo', 'Dia', 'Início', 'Fim']
+            ].drop_duplicates().sort_values(by=['Dia', 'Início'])
+        ).to_excel(writer, sheet_name='Minha Programação')
+        writer.save()
+
+    download.download_button(
+        label="Baixar programação",
+        data=buffer,
+        file_name="minha_programacao.xlsx",
+        mime="application/vnd.ms-excel")
 
     # Construção tabela de detalhes do evento
     st.header("Detalhes do Evento")
