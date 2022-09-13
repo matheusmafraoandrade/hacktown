@@ -7,6 +7,7 @@ import lxml
 import pandas as pd
 import numpy as np
 import streamlit as st
+from pandas.api.types import CategoricalDtype
 from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
 
 st.set_page_config(page_title='Programação Hacktown', layout='wide')
@@ -16,40 +17,40 @@ st.title('Programação Hacktown')
 days = {0:'Quinta',1:'Sexta',2:'Sábado',3:'Domingo'}
 
 ### Criar tipo "Dias da Semana"
-days_order = pd.CategoricalDtype(
+days_order = CategoricalDtype(
     ['Quinta','Sexta','Sábado','Domingo'], 
-    ordered=True
-)
+    ordered=True)
 
 ### Função Webscraping
 @st.cache(allow_output_mutation=True)
 def hacktown(link: str) -> pd.DataFrame:
-  """
-  Função que coleta os dados dos eventos via web scraping da planilha de programação do Hacktown, dividida por dias do evento.
-  Em seguida, itera pelos dias definidos no dicionário 'days' para coletar todos os dados dos eventos correspondentes ao dia e preencher o dataframe 'mydata'.
-  """  
-  # Create object page
-  page = requests.get(link)
+    """
+    Função que coleta os dados dos eventos via web scraping da planilha de programação do Hacktown, dividida por dias do evento.
+    Em seguida, itera pelos dias definidos no dicionário 'days' para coletar todos os dados dos eventos correspondentes ao dia e 
+    preencher o dataframe 'mydata'.
+    """  
+    # Create object page
+    page = requests.get(link)
 
-  # parser-lxml = Change html to Python friendly format
-  # Obtain page's information
-  soup = BeautifulSoup(page.text, 'lxml')
+    # parser-lxml = Change html to Python friendly format
+    # Obtain page's information
+    soup = BeautifulSoup(page.text, 'lxml')
 
-  # Create a dataframe
-  headers = ['Horario', 'Evento', 'Descrição', 'Local', 'Tipo', 'Dia']
-  mydata = pd.DataFrame(columns=headers)
+    # Create a dataframe
+    headers = ['Horario', 'Evento', 'Descrição', 'Local', 'Tipo', 'Dia']
+    mydata = pd.DataFrame(columns=headers)
 
-  for index, table in enumerate(soup.find_all('table')):
-    dia = days[index]
-    # Create a for loop to fill mydata
-    for j in table.find_all('tr')[1:]:
-      row_data = j.find_all('td')
-      row = [i.text for i in row_data]
-      row.append(dia)
-      length = len(mydata)
-      mydata.loc[length] = row
+    for index, table in enumerate(soup.find_all('table')):
+        dia = days[index]
+        # Create a for loop to fill mydata
+        for j in table.find_all('tr')[1:]:
+            row_data = j.find_all('td')
+            row = [i.text for i in row_data]
+            row.append(dia)
+            length = len(mydata)
+            mydata.loc[length] = row
 
-  return mydata
+    return mydata
 
 df = pd.DataFrame(hacktown(
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vTUAuTwwFq_debnSmBPcUMg3B_9kx76J_BygLDCYkGb9BNG8AvIx27wouDrg6pL3r8Vo_oBFYx7eNp4/pubhtml?gid=0")
@@ -175,18 +176,18 @@ with tab1:
 with tab2:
     # Minha Programação
     st.header("Minha Programação")
-    st.write('Clique com o botão direito em qualquer evento e, em seguida, clique em "Export" para baixar sua programação em csv ou Excel.')
+    st.write(
+        'Clique com o botão direito em qualquer evento e, em seguida, clique em "Export" para baixar sua programação em CSV ou Excel.')
     
     # Inicializar minha prrogramação
     if 'minha_prog' not in st.session_state:
-        st.session_state.minha_prog = pd.DataFrame(columns = df.columns)
-
-    # Colocar os dias da semana na ordem
-    (st.session_state.minha_prog)['Dia'] = (st.session_state.minha_prog)['Dia'].astype(days_order)
+        st.session_state.minha_prog = pd.DataFrame(columns = df.columns)  
 
     # Adicionar e remover eventos
     if adicionar:
         st.session_state.minha_prog = pd.concat([st.session_state.minha_prog, df_selected])
+        # Colocar os dias da semana na ordem
+        (st.session_state.minha_prog)['Dia'] = (st.session_state.minha_prog)['Dia'].astype(days_order)
 
     if remover:
         try:
@@ -196,12 +197,16 @@ with tab2:
             st.write("Nenhum evento selecionado")
 
     # Configurações tabela Ag Grid
-        gb = GridOptionsBuilder.from_dataframe(st.session_state.minha_prog)
-        gb.configure_column('Evento', min_column_width=8, headerCheckboxSelection = True)
-        gb.configure_pagination(enabled=True, paginationAutoPageSize=False, paginationPageSize=10) #Add pagination
-        gb.configure_side_bar() #Add a sidebar
-        gb.configure_selection(ms, use_checkbox=True, groupSelectsChildren="Group checkbox select children", suppressRowDeselection=True) #Enable multi-row selection
-        gridOptions = gb.build()
+    gb = GridOptionsBuilder.from_dataframe(
+        (st.session_state.minha_prog)[
+            ['Evento', 'Descrição', 'Local', 'Tipo', 'Dia', 'Início', 'Fim'] # Remover coluna dict que impede remover duplicatas
+            ].drop_duplicates().sort_values(by=['Dia', 'Início']) # Remover duplicatas e ordenar por dia e horário
+        )
+    gb.configure_column('Evento', min_column_width=8, headerCheckboxSelection = True)
+    gb.configure_pagination(enabled=True, paginationAutoPageSize=False, paginationPageSize=10) #Add pagination
+    gb.configure_side_bar() #Add a sidebar
+    gb.configure_selection(ms, use_checkbox=True, groupSelectsChildren="Group checkbox select children", suppressRowDeselection=True) #Enable multi-row selection
+    gridOptions = gb.build()
 
     # Construção tabela Ag Grid
     grid_response_minha_prog = AgGrid(
