@@ -262,7 +262,7 @@ with tab2:
     with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
         ((st.session_state.minha_prog)[
             ['Evento', 'Descrição', 'Local', 'Tipo', 'Dia', 'Início', 'Fim']
-            ].drop_duplicates().sort_values(by=['Dia', 'Início'])
+            ].drop_duplicates().sort_values(by=['Dia', 'Início']).set_index(pd.Index(range(1, len(st.session_state.minha_prog)+1)))
         ).to_excel(writer, sheet_name='Minha Programação')
         writer.save()
 
