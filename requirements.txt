@@ -36,6 +36,7 @@ nbclient==0.6.6
 nbconvert==6.5.0
 nbformat==5.4.0
 numpy==1.23.1
+openpyxl==3.0.10
 pandas==1.4.3
 Pillow==9.2.0
 plotly==5.10.0
@@ -79,5 +80,5 @@ watchdog==2.1.9
 webencodings==0.5.1
 widgetsnbextension==3.6.1
 wincertstore==0.2
-xlsxwriter==3.0.3
+XlsxWriter==3.0.3
 zipp==3.8.1
